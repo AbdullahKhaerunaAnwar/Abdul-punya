@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -11,92 +13,104 @@ import {
 const screenWidth = Dimensions.get('window').width;
 const columns = 3;
 const spacing = 8;
-const boxSize = (screenWidth - spacing * (columns + 1)) / columns;
+const imageSize = (screenWidth - spacing * (columns + 1)) / columns;
 
-type ImgItem = {
+type ImageData = {
   id: string;
-  urls: [string, string];
+  main: string;
+  alt: string;
 };
 
-const images: ImgItem[] = [
-  { id: '01', urls: ['https://picsum.photos/id/10/200', 'https://picsum.photos/id/1/200'] },
-  { id: '02', urls: ['https://picsum.photos/id/2/200', 'https://picsum.photos/id/99/200'] },
-  { id: '03', urls: ['https://picsum.photos/id/12/200', 'https://picsum.photos/id/98/200'] },
-  { id: '04', urls: ['https://picsum.photos/id/65/200', 'https://picsum.photos/id/96/200'] },
-  { id: '05', urls: ['https://picsum.photos/id/95/200', 'https://picsum.photos/id/94/200'] },
-  { id: '06', urls: ['https://picsum.photos/id/93/200', 'https://picsum.photos/id/92/200'] },
-  { id: '07', urls: ['https://picsum.photos/id/91/200', 'https://picsum.photos/id/90/200'] },
-  { id: '08', urls: ['https://picsum.photos/id/89/200', 'https://picsum.photos/id/88/200'] },
-  { id: '09', urls: ['https://picsum.photos/id/87/200', 'https://picsum.photos/id/86/200'] },
+const imagePairs: ImageData[] = [
+  { id: '1', main: 'https://picsum.photos/id/101/200', alt: 'https://picsum.photos/id/201/200' },
+  { id: '2', main: 'https://picsum.photos/id/102/200', alt: 'https://picsum.photos/id/202/200' },
+  { id: '3', main: 'https://picsum.photos/id/103/200', alt: 'https://picsum.photos/id/203/200' },
+  { id: '4', main: 'https://picsum.photos/id/104/200', alt: 'https://picsum.photos/id/204/200' },
+  { id: '5', main: 'https://picsum.photos/id/105/200', alt: 'https://picsum.photos/id/205/200' },
+  { id: '6', main: 'https://picsum.photos/id/106/200', alt: 'https://picsum.photos/id/206/200' },
+  { id: '7', main: 'https://picsum.photos/id/107/200', alt: 'https://picsum.photos/id/207/200' },
+  { id: '8', main: 'https://picsum.photos/id/108/200', alt: 'https://picsum.photos/id/208/200' },
+  { id: '9', main: 'https://picsum.photos/id/109/200', alt: 'https://picsum.photos/id/209/200' },
 ];
 
 export default function App() {
-  const [state, setState] = React.useState<Record<string, { flipped: boolean; zoom: number }>>({});
+  const [states, setStates] = useState<Record<string, { zoom: number; showAlt: boolean }>>({});
 
-  const handleTap = (id: string) => {
-    setState((prev) => {
-      const current = prev[id] || { flipped: false, zoom: 1 };
-      const newZoom = current.zoom * 1.2; // ✅ sesuai permintaan: zoom naik 1.2x
+  const handlePress = (id: string) => {
+    setStates((prev) => {
+      const current = prev[id] || { zoom: 1, showAlt: false };
+      const newZoom = Math.min(current.zoom * 1.2, 2); // maksimal 2x
       return {
         ...prev,
         [id]: {
-          flipped: !current.flipped,
-          zoom: newZoom > 2 ? 1 : newZoom, // reset jika melebihi 2x
+          zoom: newZoom,
+          showAlt: !current.showAlt,
         },
       };
     });
   };
 
   const renderGrid = () => {
-    const rows = [];
-    for (let i = 0; i < images.length; i += columns) {
-      const row = images.slice(i, i + columns);
-      rows.push(
-        <View key={`row-${i}`} style={styles.row}>
-          {row.map((img) => {
-            const imgState = state[img.id] || { flipped: false, zoom: 1 };
-            return (
-              <TouchableOpacity
-                key={img.id}
-                onPress={() => handleTap(img.id)}
-                activeOpacity={0.8}
-              >
-                <Image
-                  source={{ uri: imgState.flipped ? img.urls[1] : img.urls[0] }}
-                  style={[
-                    styles.imageBox,
-                    {
-                      transform: [{ scale: imgState.zoom }],
-                    },
-                  ]}
-                />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      );
-    }
-    return rows;
+    return (
+      <View style={styles.grid}>
+        {imagePairs.map((img) => {
+          const state = states[img.id] || { zoom: 1, showAlt: false };
+          return (
+            <TouchableOpacity
+              key={img.id}
+              onPress={() => handlePress(img.id)}
+              activeOpacity={0.8}
+              style={styles.cell}
+            >
+              <Image
+                source={{ uri: state.showAlt ? img.alt : img.main }}
+                style={[
+                  styles.image,
+                  {
+                    transform: [{ scale: state.zoom }],
+                  },
+                ]}
+                resizeMode="cover"
+                onError={() => Alert.alert('Gagal memuat gambar')}
+              />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
   };
 
-  return <ScrollView contentContainerStyle={styles.container}>{renderGrid()}</ScrollView>;
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>{renderGrid()}</ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scrollContent: {
     padding: spacing,
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
-  row: {
+  grid: {
     flexDirection: 'row',
-    marginBottom: spacing,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
-  imageBox: {
-    width: boxSize,
-    height: boxSize,
-    marginHorizontal: spacing / 2,
-    borderRadius: 6,
-    backgroundColor: '#ccc',
+  cell: {
+    width: imageSize,
+    height: imageSize,
+    margin: spacing / 2,
+    backgroundColor: '#eee',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
 });
