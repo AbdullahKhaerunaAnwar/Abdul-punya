@@ -1,158 +1,96 @@
+// index.tsx
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  StyleSheet,
-  Image,
-  Pressable,
+  Alert,
   Dimensions,
   FlatList,
-  Alert,
+  Image,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
 } from 'react-native';
 
-/**
- * Tipe properti untuk komponen sel gambar individual
- */
-type ImageCellProps = {
-  primaryUrl: string;
-  alternateUrl: string;
+type GridItemProps = {
+  mainUrl: string;
+  altUrl: string;
 };
 
-/**
- * Komponen individual untuk setiap sel gambar dalam grid
- * - Menangani penskalaan individu (scale)
- * - Berganti ke gambar alternatif saat diklik
- * - Maksimum penskalaan: 2x
- */
-const ImageCell: React.FC<ImageCellProps> = ({ primaryUrl, alternateUrl }) => {
-  const [useAlternate, setUseAlternate] = useState(false);
-  const [scale, setScale] = useState(1);
+const GridItem: React.FC<GridItemProps> = ({ mainUrl, altUrl }) => {
+  const [showAlt, setShowAlt] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
-  /**
-   * Saat gambar diklik:
-   * - Ganti gambar utama <-> alternatif
-   * - Perbesar gambar 1.2x jika belum mencapai skala maksimal
-   */
-  const handlePress = () => {
-    const newScale = scale * 1.2;
-    setUseAlternate(prev => !prev);
-    setScale(newScale <= 2 ? newScale : 2); // Maksimal 2x
+  const toggleImage = () => {
+    const updatedZoom = zoom * 1.2;
+    setZoom(updatedZoom > 2 ? 2 : updatedZoom);
+    setShowAlt(prev => !prev);
   };
 
-  /**
-   * Penanganan jika gambar gagal dimuat
-   */
-  const handleImageError = () => {
-    Alert.alert('Error', 'Gagal memuat gambar.');
+  const onImageFail = () => {
+    Alert.alert('Gambar gagal dimuat', 'Periksa koneksi atau URL.');
   };
 
   return (
-    <Pressable onPress={handlePress} style={[styles.cell, { zIndex: scale > 1 ? 1 : 0 }]}>
+    <Pressable onPress={toggleImage} style={[styles.box, { zIndex: zoom > 1 ? 1 : 0 }]}>
       <Image
-        source={{ uri: useAlternate ? alternateUrl : primaryUrl }}
-        style={[styles.image, { transform: [{ scale }] }]}
+        source={{ uri: showAlt ? altUrl : mainUrl }}
+        style={[styles.picture, { transform: [{ scale: zoom }] }]}
         resizeMode="cover"
-        onError={handleImageError}
+        onError={onImageFail}
       />
     </Pressable>
   );
 };
 
-/**
- * Dataset gambar utama dan alternatif (9 pasang gambar)
- */
-const imageData = [
-  {
-    id: '1',
-    primary: 'https://picsum.photos/id/10/200',
-    alternate: 'https://picsum.photos/id/1/200',
-  },
-  {
-    id: '2',
-    primary: 'https://picsum.photos/id/2/200',
-    alternate: 'https://picsum.photos/id/99/200',
-  },
-  {
-    id: '3',
-    primary: 'https://picsum.photos/id/12/200',
-    alternate: 'https://picsum.photos/id/98/200',
-  },
-  {
-    id: '4',
-    primary: 'https://picsum.photos/id/65/200',
-    alternate: 'https://picsum.photos/id/96/200',
-  },
-  {
-    id: '5',
-    primary: 'https://picsum.photos/id/95/200',
-    alternate: 'https://picsum.photos/id/94/200',
-  },
-  {
-    id: '6',
-    primary: 'https://picsum.photos/id/93/200',
-    alternate: 'https://picsum.photos/id/92/200',
-  },
-  {
-    id: '7',
-    primary: 'https://picsum.photos/id/91/200',
-    alternate: 'https://picsum.photos/id/90/200',
-  },
-  {
-    id: '8',
-    primary: 'https://picsum.photos/id/89/200',
-    alternate: 'https://picsum.photos/id/88/200',
-  },
-  {
-    id: '9',
-    primary: 'https://picsum.photos/id/87/200',
-    alternate: 'https://picsum.photos/id/86/200',
-  },
+const galleryData = [
+  { id: 'a1', main: 'https://picsum.photos/id/10/200', alt: 'https://picsum.photos/id/1/200' },
+  { id: 'a2', main: 'https://picsum.photos/id/2/200', alt: 'https://picsum.photos/id/99/200' },
+  { id: 'a3', main: 'https://picsum.photos/id/12/200', alt: 'https://picsum.photos/id/98/200' },
+  { id: 'a4', main: 'https://picsum.photos/id/65/200', alt: 'https://picsum.photos/id/96/200' },
+  { id: 'a5', main: 'https://picsum.photos/id/95/200', alt: 'https://picsum.photos/id/94/200' },
+  { id: 'a6', main: 'https://picsum.photos/id/93/200', alt: 'https://picsum.photos/id/92/200' },
+  { id: 'a7', main: 'https://picsum.photos/id/91/200', alt: 'https://picsum.photos/id/90/200' },
+  { id: 'a8', main: 'https://picsum.photos/id/89/200', alt: 'https://picsum.photos/id/88/200' },
+  { id: 'a9', main: 'https://picsum.photos/id/87/200', alt: 'https://picsum.photos/id/86/200' },
 ];
 
-/**
- * Komponen utama yang menampilkan semua gambar dalam grid 3x3
- */
 export default function App() {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.container}>
       <FlatList
-        data={imageData}
-        keyExtractor={(item) => item.id}
+        data={galleryData}
         numColumns={3}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ImageCell primaryUrl={item.primary} alternateUrl={item.alternate} />
+          <GridItem mainUrl={item.main} altUrl={item.alt} />
         )}
       />
     </SafeAreaView>
   );
 }
 
-/**
- * Gaya dan perhitungan ukuran cell agar semua sel gambar sama besar
- */
-const numColumns = 3;
-const spacing = 8;
-const screenWidth = Dimensions.get('window').width;
-const totalSpacing = spacing * (numColumns + 1);
-const cellSize = (screenWidth - totalSpacing) / numColumns;
+const cols = 3;
+const margin = 8;
+const screen = Dimensions.get('window').width;
+const itemSize = (screen - margin * (cols + 1)) / cols;
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: spacing / 2,
+    backgroundColor: '#fefefe',
+    paddingHorizontal: margin / 2,
   },
-  cell: {
-    width: cellSize,
-    height: cellSize,
-    margin: spacing / 2,
-    backgroundColor: '#eee',
-    overflow: 'hidden',
+  box: {
+    width: itemSize,
+    height: itemSize,
+    margin: margin / 2,
+    backgroundColor: '#f0f0f0',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  image: {
+  picture: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 6,
   },
 });
