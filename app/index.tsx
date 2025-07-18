@@ -6,7 +6,9 @@ export default function Index() {
     <View style={styles.mainContainer}>
       {/* Header berisi nama dalam kotak hitam */}
       <View style={styles.headerBox}>
-        <Text style={styles.headerText}>Wiwin Fuad Sanjaya</Text>
+        <Text style={styles.headerText} numberOfLines={1}>
+          Abdullah Khaeruna Anwar
+        </Text>
       </View>
 
       {/* Segitiga berwarna orange */}
@@ -15,7 +17,7 @@ export default function Index() {
       {/* Kapsul berisi stambuk dan ikon */}
       <View style={styles.stambukContainer}>
         <Ionicons name="person" size={19} color="#ffffff" style={{ marginRight: 6 }} />
-        <Text style={styles.stambukText}>105841114222</Text>
+        <Text style={styles.stambukText}>105841138222</Text>
       </View>
     </View>
   );
@@ -26,22 +28,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f2f2f2", // beda warna latar
+    backgroundColor: "#f2f2f2",
     paddingVertical: 20,
   },
   headerBox: {
-    width: 255,
-    height: 90,
     backgroundColor: "#111",
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 14,
-    marginBottom: 25, // ganti dari gap
+    marginBottom: 25,
+    maxWidth: "90%",
   },
   headerText: {
-    color: "#ff3333", // beda warna merah
+    color: "#ff3333",
     fontSize: 22,
-    fontWeight: "700", // sedikit lebih tebal
+    fontWeight: "700",
   },
   triangle: {
     width: 0,
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   stambukContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4a00c2", // ubah warna ungu
+    backgroundColor: "#4a00c2",
     paddingHorizontal: 22,
     paddingVertical: 10,
     borderRadius: 100,
