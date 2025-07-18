@@ -1,7 +1,5 @@
-// ZoomGallery.tsx
 import React from 'react';
 import {
-  Alert,
   Dimensions,
   Image,
   ScrollView,
@@ -32,18 +30,18 @@ const images: ImgItem[] = [
   { id: '09', urls: ['https://picsum.photos/id/87/200', 'https://picsum.photos/id/86/200'] },
 ];
 
-const ZoomGallery = () => {
+export default function App() {
   const [state, setState] = React.useState<Record<string, { flipped: boolean; zoom: number }>>({});
 
   const handleTap = (id: string) => {
     setState((prev) => {
       const current = prev[id] || { flipped: false, zoom: 1 };
-      const newZoom = current.zoom * 1.3;
+      const newZoom = current.zoom * 1.2; // ✅ sesuai permintaan: zoom naik 1.2x
       return {
         ...prev,
         [id]: {
           flipped: !current.flipped,
-          zoom: newZoom > 2 ? 1 : newZoom,
+          zoom: newZoom > 2 ? 1 : newZoom, // reset jika melebihi 2x
         },
       };
     });
@@ -71,9 +69,6 @@ const ZoomGallery = () => {
                       transform: [{ scale: imgState.zoom }],
                     },
                   ]}
-                  onError={() =>
-                    Alert.alert('Error', 'Gagal menampilkan gambar.')
-                  }
                 />
               </TouchableOpacity>
             );
@@ -85,9 +80,7 @@ const ZoomGallery = () => {
   };
 
   return <ScrollView contentContainerStyle={styles.container}>{renderGrid()}</ScrollView>;
-};
-
-export default ZoomGallery;
+}
 
 const styles = StyleSheet.create({
   container: {
