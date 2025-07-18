@@ -1,4 +1,4 @@
-// index.tsx
+// GalleryView.tsx
 import React, { useState } from 'react';
 import {
   Alert,
@@ -7,90 +7,92 @@ import {
   Image,
   Pressable,
   SafeAreaView,
-  StyleSheet,
+  StyleSheet
 } from 'react-native';
 
-type GridItemProps = {
-  mainUrl: string;
-  altUrl: string;
-};
+interface ImageItemProps {
+  primary: string;
+  secondary: string;
+}
 
-const GridItem: React.FC<GridItemProps> = ({ mainUrl, altUrl }) => {
-  const [showAlt, setShowAlt] = useState(false);
-  const [zoom, setZoom] = useState(1);
+const PhotoCard: React.FC<ImageItemProps> = ({ primary, secondary }) => {
+  const [altView, setAltView] = useState(false);
+  const [scaleLevel, setScaleLevel] = useState(1);
 
-  const toggleImage = () => {
-    const updatedZoom = zoom * 1.2;
-    setZoom(updatedZoom > 2 ? 2 : updatedZoom);
-    setShowAlt(prev => !prev);
+  const switchImage = () => {
+    const nextZoom = scaleLevel + 0.3;
+    setScaleLevel(nextZoom > 2 ? 1 : nextZoom); // reset zoom to 1 after passing limit
+    setAltView((prev) => !prev);
   };
 
-  const onImageFail = () => {
-    Alert.alert('Gambar gagal dimuat', 'Periksa koneksi atau URL.');
+  const handleError = () => {
+    Alert.alert('Load Error', 'Unable to display image. Check your network or link.');
   };
 
   return (
-    <Pressable onPress={toggleImage} style={[styles.box, { zIndex: zoom > 1 ? 1 : 0 }]}>
+    <Pressable onPress={switchImage} style={[styles.card, { zIndex: scaleLevel > 1 ? 2 : 0 }]}>
       <Image
-        source={{ uri: showAlt ? altUrl : mainUrl }}
-        style={[styles.picture, { transform: [{ scale: zoom }] }]}
+        source={{ uri: altView ? secondary : primary }}
+        style={[styles.image, { transform: [{ scale: scaleLevel }] }]}
         resizeMode="cover"
-        onError={onImageFail}
+        onError={handleError}
       />
     </Pressable>
   );
 };
 
-const galleryData = [
-  { id: 'a1', main: 'https://picsum.photos/id/10/200', alt: 'https://picsum.photos/id/1/200' },
-  { id: 'a2', main: 'https://picsum.photos/id/2/200', alt: 'https://picsum.photos/id/99/200' },
-  { id: 'a3', main: 'https://picsum.photos/id/12/200', alt: 'https://picsum.photos/id/98/200' },
-  { id: 'a4', main: 'https://picsum.photos/id/65/200', alt: 'https://picsum.photos/id/96/200' },
-  { id: 'a5', main: 'https://picsum.photos/id/95/200', alt: 'https://picsum.photos/id/94/200' },
-  { id: 'a6', main: 'https://picsum.photos/id/93/200', alt: 'https://picsum.photos/id/92/200' },
-  { id: 'a7', main: 'https://picsum.photos/id/91/200', alt: 'https://picsum.photos/id/90/200' },
-  { id: 'a8', main: 'https://picsum.photos/id/89/200', alt: 'https://picsum.photos/id/88/200' },
-  { id: 'a9', main: 'https://picsum.photos/id/87/200', alt: 'https://picsum.photos/id/86/200' },
+const imageCollection = [
+  { id: 'img1', primary: 'https://picsum.photos/id/10/200', secondary: 'https://picsum.photos/id/1/200' },
+  { id: 'img2', primary: 'https://picsum.photos/id/2/200', secondary: 'https://picsum.photos/id/99/200' },
+  { id: 'img3', primary: 'https://picsum.photos/id/12/200', secondary: 'https://picsum.photos/id/98/200' },
+  { id: 'img4', primary: 'https://picsum.photos/id/65/200', secondary: 'https://picsum.photos/id/96/200' },
+  { id: 'img5', primary: 'https://picsum.photos/id/95/200', secondary: 'https://picsum.photos/id/94/200' },
+  { id: 'img6', primary: 'https://picsum.photos/id/93/200', secondary: 'https://picsum.photos/id/92/200' },
+  { id: 'img7', primary: 'https://picsum.photos/id/91/200', secondary: 'https://picsum.photos/id/90/200' },
+  { id: 'img8', primary: 'https://picsum.photos/id/89/200', secondary: 'https://picsum.photos/id/88/200' },
+  { id: 'img9', primary: 'https://picsum.photos/id/87/200', secondary: 'https://picsum.photos/id/86/200' },
 ];
 
-export default function App() {
+const GalleryView = () => {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.wrapper}>
       <FlatList
-        data={galleryData}
-        numColumns={3}
+        data={imageCollection}
         keyExtractor={(item) => item.id}
+        numColumns={GRID_COLUMNS}
         renderItem={({ item }) => (
-          <GridItem mainUrl={item.main} altUrl={item.alt} />
+          <PhotoCard primary={item.primary} secondary={item.secondary} />
         )}
       />
     </SafeAreaView>
   );
-}
+};
 
-const cols = 3;
-const margin = 8;
-const screen = Dimensions.get('window').width;
-const itemSize = (screen - margin * (cols + 1)) / cols;
+export default GalleryView;
+
+const GRID_COLUMNS = 3;
+const GAP = 10;
+const WIDTH = Dimensions.get('window').width;
+const SIZE = (WIDTH - GAP * (GRID_COLUMNS + 1)) / GRID_COLUMNS;
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
-    backgroundColor: '#fefefe',
-    paddingHorizontal: margin / 2,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: GAP / 2,
   },
-  box: {
-    width: itemSize,
-    height: itemSize,
-    margin: margin / 2,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
+  card: {
+    width: SIZE,
+    height: SIZE,
+    margin: GAP / 2,
+    backgroundColor: '#dddddd',
     justifyContent: 'center',
+    alignItems: 'center',
     overflow: 'hidden',
+    borderRadius: 8,
   },
-  picture: {
+  image: {
     width: '100%',
     height: '100%',
-    borderRadius: 6,
   },
 });
