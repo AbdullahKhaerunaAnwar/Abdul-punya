@@ -1,92 +1,77 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-type MahasiswaItem = {
-  namaLengkap: string;
-  nomorStambuk: number;
-  jenisFont?: string;
+type DataMahasiswa = {
+  nama: string;
+  stambuk: number;
+  fontFamily?: string;
 };
 
-const mahasiswaList: MahasiswaItem[] = [
-  { namaLengkap: "Abdul Naim", nomorStambuk: 105841114100, jenisFont: "ubuntu" },
-  { namaLengkap: "Syahrul Ramadhan", nomorStambuk: 105841114110, jenisFont: "barlowCondensed" },
-  { namaLengkap: "Suriadin", nomorStambuk: 105841114123, jenisFont: "raleway" },
-  { namaLengkap: "Siti Maemunah", nomorStambuk: 105841114112, jenisFont: "rubik" },
-  { namaLengkap: "Hasnawati", nomorStambuk: 105841114117, jenisFont: "ptsans" },
-  { namaLengkap: "Ermawati", nomorStambuk: 105841114115, jenisFont: "roboto" },
-  { namaLengkap: "Ahmad Khalid", nomorStambuk: 105841114128, jenisFont: "merriweather" },
-  { namaLengkap: "Nurdin", nomorStambuk: 105841114113, jenisFont: "tiktoksans" },
-  { namaLengkap: "Abdul Khaeruna Anwar", nomorStambuk: 105841114124, jenisFont: "tilitium" },
+const mahasiswa: DataMahasiswa[] = [
+  { nama: "Abdul Naim", stambuk: 105841114100, fontFamily: "ubuntu" },
+  { nama: "Syahrul Ramadhan", stambuk: 105841114110, fontFamily: "barlowCondensed" },
+  { nama: "Suriadin", stambuk: 105841114123, fontFamily: "raleway" },
+  { nama: "Siti Maemunah", stambuk: 105841114112, fontFamily: "rubik" },
+  { nama: "Hasnawati", stambuk: 105841114117, fontFamily: "ptsans" },
+  { nama: "Ermawati", stambuk: 105841114115, fontFamily: "roboto" },
+  { nama: "Ahmad Khalid", stambuk: 105841114128, fontFamily: "merriweather" },
+  { nama: "Nurdin", stambuk: 105841114113, fontFamily: "tiktoksans" },
+  { nama: "Abdul Khaeruna", stambuk: 105841114124, fontFamily: "tilitium" },
+  { nama: "Rizki Abdi", stambuk: 105841114109, fontFamily: "oswald" },
 ];
 
-const bagiKelompok = (list: MahasiswaItem[]) => {
-  const hasil = {
-    grupA: list.slice(0, 3),
-    grupB: list.slice(3, 6),
-    grupC: list.slice(6),
-  };
-  return hasil;
+const tampilkan10BerdasarkanReferensi = (
+  daftar: DataMahasiswa[],
+  referensi: number
+) => {
+  const urut = [...daftar].sort((a, b) => a.stambuk - b.stambuk);
+  const indexRef = urut.findIndex((m) => m.stambuk === referensi);
+  const mulai = Math.max(0, indexRef - 5);
+  const akhir = Math.min(urut.length, indexRef + 5);
+  return urut.slice(mulai, akhir);
 };
 
-const KartuKelompok = ({
-  judul,
-  isi,
-}: {
-  judul: string;
-  isi: MahasiswaItem[];
-}) => (
-  <View style={gaya.kotakKelompok}>
-    <Text style={gaya.judulKelompok}>{judul}</Text>
-    {isi.map((orang, idx) => (
-      <View key={idx} style={gaya.kotakIndividu}>
-        <Text style={[gaya.namaOrang, { fontFamily: orang.jenisFont ?? "roboto" }]}>
-          {orang.namaLengkap}
-        </Text>
-        <Text style={gaya.stambukText}>Stambuk: {orang.nomorStambuk}</Text>
-      </View>
-    ))}
-  </View>
-);
-
 export default function Beranda() {
-  const { grupA, grupB, grupC } = bagiKelompok(mahasiswaList);
+  const listDitampilkan = tampilkan10BerdasarkanReferensi(mahasiswa, 105841114115);
 
   return (
-    <ScrollView contentContainerStyle={gaya.halaman}>
-      <KartuKelompok judul="Grup A" isi={grupA} />
-      <KartuKelompok judul="Grup B" isi={grupB} />
-      <KartuKelompok judul="Grup C" isi={grupC} />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.judul}>Daftar Mahasiswa (5 Sebelum & 5 Sesudah)</Text>
+      {listDitampilkan.map((item, idx) => (
+        <View key={idx} style={styles.kotak}>
+          <Text style={[styles.nama, { fontFamily: item.fontFamily ?? "roboto" }]}>
+            {item.nama}
+          </Text>
+          <Text style={styles.stambuk}>Stambuk: {item.stambuk}</Text>
+        </View>
+      ))}
     </ScrollView>
   );
 }
 
-const gaya = StyleSheet.create({
-  halaman: {
-    padding: 20,
-    backgroundColor: "#ececec",
-  },
-  kotakKelompok: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
+const styles = StyleSheet.create({
+  container: {
     padding: 18,
-    marginBottom: 18,
-    elevation: 4,
+    backgroundColor: "#f9f9f9",
   },
-  judulKelompok: {
+  judul: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#1f2937",
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#222",
+  },
+  kotak: {
     marginBottom: 14,
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 6,
+    elevation: 2,
   },
-  kotakIndividu: {
-    marginBottom: 12,
-  },
-  namaOrang: {
+  nama: {
     fontSize: 16,
     color: "#111",
   },
-  stambukText: {
+  stambuk: {
     fontSize: 13,
-    color: "#555",
-    marginTop: 2,
+    color: "#666",
   },
 });
